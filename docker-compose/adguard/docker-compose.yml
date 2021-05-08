@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  adguard:
+    container_name: adguardhome
+    image: adguard/adguardhome:latest
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "67:67/udp"
+      - "80:80/tcp"
+    # Volumes store your data between container upgrades
+    volumes:
+      - './workdir:/opt/adguardhome/work'
+      - './confdir:/opt/adguardhome/conf'
+    restart: unless-stopped

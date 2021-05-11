@@ -6,12 +6,14 @@ services:
     container_name: pihole
     image: pihole/pihole:latest
     ports:
+      - "8080:80/tcp"
       - "53:53/tcp"
       - "53:53/udp"
       - "67:67/udp"
-      - "80:80/tcp"
     env_file: pi-hole.env
     # Volumes store your data between container upgrades
+    networks:
+      - proxy
     volumes:
       - './etc-pihole/:/etc/pihole/'
       - './etc-dnsmasq.d/:/etc/dnsmasq.d/'
@@ -20,3 +22,14 @@ services:
     # cap_add:
     #   - NET_ADMIN
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.pihole.rule=Host(`pihole.calvin.test`)"
+      - "traefik.http.routers.pihole.entrypoints=web"
+      - "traefik.http.routers.pihole.tls=true"
+      - "traefik.http.services.pihole.loadbalancer.server.port=80"
+
+networks:
+  proxy:
+    external: true

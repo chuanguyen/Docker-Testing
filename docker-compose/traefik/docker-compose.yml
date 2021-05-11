@@ -1,0 +1,30 @@
+# docker-compose.yml
+version: "3.8"
+
+services:
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - proxy
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yml:/traefik.yml:ro
+      - ./configurations:/configurations
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.traefik1.rule=Host(`traefik.calvin.test`)"
+      - "traefik.http.routers.traefik1.tls=true"
+      - "traefik.http.routers.traefik1.entrypoints=websecure"
+      - "traefik.http.routers.traefik1.service=api@internal"
+
+networks:
+  proxy:
+    external: true
